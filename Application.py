@@ -5,12 +5,12 @@ from flask_marshmallow import Marshmallow
 from Main import main
 
 app = Flask(__name__)
-app.config['SQLACHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://newuser:newuser@localhost/exhibit_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://newuser:newuser@localhost:3306/exhibit_db'
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 class ExhibitModel(db.Model):
-    __tablename__ = 'Exhibits'
+    __tablename__ = 'exhibits'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(length=80))
@@ -43,7 +43,7 @@ exhibit_schema = ExhibitSchema()
 exhibits_schema = ExhibitSchema(many=True)
 db.create_all()
 
-@app.route("/exhibits", methods=["POST"])
+@app.route("/exhibitspy", methods=["POST"])
 def add_exhibit():
     name = request.get_json()["name"]
     century_of_creation = request.get_json()["century_of_creation"]
@@ -56,18 +56,18 @@ def add_exhibit():
     db.session.commit()
     return jsonify(request.json)
 
-@app.route("/exhibits", methods=["GET"])
+@app.route("/exhibitspy", methods=["GET"])
 def get_exhibits():
     all_exhibits = ExhibitModel.query.all()
-    return_info = exhibit_schema.dump(all_exhibits)
+    return_info = exhibits_schema.dump(all_exhibits)
     return jsonify(return_info.data)
 
-@app.route("/exhibits/<id>", methods=["GET"])
+@app.route("/exhibitspy/<id>", methods=["GET"])
 def get_exhibit_by_id(id):
     exhibit = ExhibitModel.query.get(id)
     return exhibit_schema.jsonify(exhibit)
 
-@app.route("/exhibits/<id>", methods=["PUT"])
+@app.route("/exhibitspy/<id>", methods=["PUT"])
 def replace_exhibit(id):
     exhibit = ExhibitModel.query.get(id)
     exhibit.name = request.json["name"]
@@ -79,7 +79,7 @@ def replace_exhibit(id):
     return exhibit_schema.jsonify(request.json)
 
 
-@app.route("/exhibits/<id>", methods=["DELETE"])
+@app.route("/exhibitspy/<id>", methods=["DELETE"])
 def delete_exhibit(id):
     exhibit = ExhibitModel.query.get(id)
     db.session.delete(exhibit)
